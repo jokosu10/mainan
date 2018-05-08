@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Google Maps</title>
+    <style>
+        #map-canvas {
+            width:450px;
+            height:340px;
+        }
+
+        #infos {
+            position:absolute;
+            top:60px;
+            left:470px;
+            width:300px;
+        }
+
+        #infos .info {
+            background-color:#eee;
+            padding:15px 25px;
+            margin:10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>My Google Map</h1>
+    <div id="map-canvas"></div>
+    <div id="infos">
+        <h2><span></span> visible beaches</h2>
+        <div class="info info-1">Bondi Beach</div>
+        <div class="info info-2">Coogee Beach</div>
+        <div class="info info-3">Cronulla Beach</div>
+        <div class="info info-4">Manly Beach</div>
+        <div class="info info-5">Maroubra Beach</div>
+    </div>
+    <script>
+        // Keep references
+            var map,
+                markers = [];
+
+            // Our markers database (for testing)
+            var locations = [
+                ['Bondi Beach', -33.890542, 151.274856],
+                ['Coogee Beach', -33.923036, 151.259052],
+                ['Cronulla Beach', -34.028249, 151.157507],
+                ['Manly Beach', -33.80010128657071, 151.28747820854187],
+                ['Maroubra Beach', -33.950198, 151.259302]
+            ];
+
+
+            function initMap() {
+                var mapOptions = {
+                    center: new google.maps.LatLng(-33.9, 151.2),
+                    zoom: 9,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+
+                map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+                // Adding our markers from our "big database"
+                addMarkers();
+
+                // Fired when the map becomes idle after panning or zooming.
+                google.maps.event.addListener(map, 'idle', function () {
+                    showVisibleMarkers();
+                });
+            }
+
+            function addMarkers() {
+                for (var i = 0; i < locations.length; i++) {
+                    var beach = locations[i],
+                        myLatLng = new google.maps.LatLng(beach[1], beach[2]),
+                        marker = new google.maps.Marker({
+                            position: myLatLng,
+                            title: beach[0]
+                        });
+                    marker.setMap(map);
+
+                    // Keep marker instances in a global array
+                    markers.push(marker);
+                }
+            }
+
+            function showVisibleMarkers() {
+                var bounds = map.getBounds(),
+                    count = 0;
+
+                for (var i = 0; i < markers.length; i++) {
+                    var marker = markers[i],
+                        infoPanel = $('.info-' + (i + 1)); // array indexes start at zero, but not our class names :)
+
+                    if (bounds.contains(marker.getPosition()) === true) {
+                        infoPanel.show();
+                        count++;
+                    }
+                    else {
+                        infoPanel.hide();
+                    }
+                }
+
+                $('#infos h2 span').html(count);
+            }
+
+           // google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQNCS5j5zkhRyit0cL1q-e_NAaXilSKQ8&callback=initMap"></script>
+</body>
+
+</html>
